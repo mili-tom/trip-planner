@@ -90,4 +90,13 @@ function getAllSiblings(element, parent) {
   return children.filter(child => child !== element);
 }
 
-
+function planTrip(originlong, originLat, destLong, destLat) {
+  const buttonElem = document.querySelector('.plan-trip');
+  buttonElem.addEventListener('click' , function() {
+    fetch(`https://api.winnipegtransit.com/v3/trip-planner.json?origin=geo/${originLat},${originlong}&destination=geo/${destLat},${destLong}&usage=long&api-key=${APIkeyWinTransit}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      });  
+  })
+}
