@@ -36,3 +36,17 @@ function deletePreviousSearch(point) {
     }
   })
 }
+
+function displayLocations(location, point) {
+  ulElem.forEach(element => {      
+  //element.innerHTML = '';
+  if (element.className.includes(point)) {
+    element.insertAdjacentHTML('beforeend',
+    `<li data-long=${location.center[0]} data-lat=${location.center[1]}>
+      <div class="name">${location.text}</div>
+      <div>${location.properties.address}</div>
+    </li>`
+    )
+  }
+});
+}
