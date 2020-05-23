@@ -58,12 +58,16 @@ ulElem.forEach(element => element.addEventListener('click', function(event) {
   //let originLong, originLat, destLong, destLat;
   
   if (selectedLocation !== null) {
-    //const siblingsElem = getAllSiblings(selectedLocation, parentElem);
+    const siblingsElem = getAllSiblings(selectedLocation, parentElem);
   
     selectedLocation.classList.add('selected');
-    //siblingsElem.forEach(ele => ele.classList.remove('selected'));
+    siblingsElem.forEach(ele => ele.classList.remove('selected'));
   }
 }))
   
-  
+//https://stackoverflow.com/questions/4378784/how-to-find-all-siblings-of-the-currently-selected-dom-object
+function getAllSiblings(element, parent) {
+  const children = [...parent.children];
+  return children.filter(child => child !== element);
+}
   
