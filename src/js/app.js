@@ -50,3 +50,12 @@ function displayLocations(location, point) {
   }
 });
 }
+
+ulElem.forEach(element => element.addEventListener('click', function(event) {
+  const selectedLocation = event.target.closest('li');
+  //console.log(selectedLocation);
+  const parentElem = selectedLocation.closest('ul');
+  }))
+  
+  
+  
