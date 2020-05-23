@@ -55,7 +55,15 @@ ulElem.forEach(element => element.addEventListener('click', function(event) {
   const selectedLocation = event.target.closest('li');
   //console.log(selectedLocation);
   const parentElem = selectedLocation.closest('ul');
-  }))
+  //let originLong, originLat, destLong, destLat;
+  
+  if (selectedLocation !== null) {
+    //const siblingsElem = getAllSiblings(selectedLocation, parentElem);
+  
+    selectedLocation.classList.add('selected');
+    //siblingsElem.forEach(ele => ele.classList.remove('selected'));
+  }
+}))
   
   
   
