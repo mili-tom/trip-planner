@@ -22,5 +22,17 @@ function findLocation(query, point) {
     .then(resp => resp.json())
     .then(data => {
       console.log(data);
-      data.features.forEach(location => displayLocations(location, point))});  
+      deletePreviousSearch(point);
+      data.features.forEach(location => {
+        displayLocations(location, point);
+      })
+    });  
+}
+
+function deletePreviousSearch(point) {
+  ulElem.forEach(element => {
+    if (element.className.includes(point)) {
+      element.innerHTML = '';
+    }
+  })
 }
