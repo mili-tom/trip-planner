@@ -18,4 +18,16 @@ function transpileAndUglifyJS() {
     .pipe(gulp.dest('dist/js'))
 }
 
-exports.default = transpileAndUglifyJS;
+function copyHTML() {
+  return gulp.src('src/index.html')
+    .pipe(gulp.dest('dist'));
+}
+
+exports.default = function() {
+  gulp.watch('src/css/*.css', minifyCSS);
+  gulp.watch('src/js/*.js', transpileAndUglifyJS);
+  gulp.watch('src/index.html', copyHTML);
+  minifyCSS();
+  transpileAndUglifyJS()
+  copyHTML();
+};
