@@ -118,3 +118,20 @@ function displayPlan(step) {
       ${setText(step)}
     </li>`)
 }
+
+function setIcon(type) {
+  let icon;
+
+  switch (type) {
+    case 'ride':
+      icon = 'fas fa-bus';
+      break;
+    case 'transfer':
+      icon = 'fas fa-ticket-alt';
+      break;
+    default:
+      icon = 'fas fa-walking';
+  }
+  
+  return icon;
+}
