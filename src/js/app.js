@@ -1,14 +1,14 @@
 const APIkeyWinTransit = 'eM0x2PJKCyqqY7BOlun';
 const APIkeyMapbox = 'pk.eyJ1IjoibWlsaXRvbSIsImEiOiJja2E2YmtpN2cwNmhzMnlvejA0cm5kamtpIn0.DvZmdFkPPyBWuuW-TgOpTw';
-const bboxWinnipeg = '-97.325875, 49.766204, -96.953987, 49.99275';
+const geoBorderWinnipeg = '-97.325875, 49.766204, -96.953987, 49.99275';
 
 const ulElem = document.querySelectorAll('ul.origins, ul.destinations');
 const formElem = document.querySelectorAll('form');
+const ulTripElem = document.querySelector('.my-trip');
 
 formElem.forEach(element => element.addEventListener('submit', function(event) {
   const input = event.target.querySelector('input');
   const point = event.target.closest('form').className.slice(0,-5);
-  //console.log(point);
 
   if (input.value.length > 0) {
     findLocation(input.value, point);
@@ -18,7 +18,7 @@ formElem.forEach(element => element.addEventListener('submit', function(event) {
 }))
 
 function findLocation(query, point) {
-  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?limit=10&bbox=${bboxWinnipeg}&access_token=${APIkeyMapbox}`)
+  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?limit=10&bbox=${geoBorderWinnipeg}&access_token=${APIkeyMapbox}`)
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -52,10 +52,8 @@ function displayLocations(location, point) {
 
 ulElem.forEach(element => element.addEventListener('click', function(event) {
   const selectedLocation = event.target.closest('li');
-  //console.log(selectedLocation);
   const parentElem = selectedLocation.closest('ul');
-  let originLong, originLat, destLong, destLat;
-  
+    
   if (selectedLocation !== null) {
     const siblingsElem = getAllSiblings(selectedLocation, parentElem);
   
@@ -64,22 +62,8 @@ ulElem.forEach(element => element.addEventListener('click', function(event) {
 
     const selectedOrigLocation = document.querySelector(`.origins > .selected`);  
     const selectedDestLocation = document.querySelector(`.destinations > .selected`);
-    //console.log(selectedOrigLocation)
-    if (selectedOrigLocation !==null && selectedDestLocation !== null) {
-    originLong = selectedOrigLocation.dataset.long;
-    //console.log(originLong);
-    originLat = selectedOrigLocation.dataset.lat;
-    //console.log(originLat);
-    destLong = selectedDestLocation.dataset.long;
-    //console.log(destLong);
-    destLat = selectedDestLocation.dataset.lat;
-    //console.log(destLat);
-    }
-  
-    if (originLong !== undefined && originLat !== undefined && destLong !== undefined && destLat !== undefined) {
-      console.log(originLong, originLat, destLong, destLat);
-      //planTrip(originLong, originLat, destLong, destLat);
-    }
+    
+    getGeoData(selectedOrigLocation, selectedDestLocation);
   }
 }))
   
@@ -90,4 +74,119 @@ function getAllSiblings(element, parent) {
   return children.filter(child => child !== element);
 }
 
+function getGeoData(start, end) {
+  let originLong, originLat, destLong, destLat = '';
 
+  if (start !==null && end !== null) {
+    originLong = start.dataset.long;
+    originLat = start.dataset.lat;
+    destLong = end.dataset.long;
+    destLat = end.dataset.lat;
+  }
+
+  if (originLong !== undefined && originLat !== undefined && destLong !== undefined && destLat !== undefined) {
+    console.log(originLong, originLat, destLong, destLat);
+    planTrip(originLong, originLat, destLong, destLat);
+  }
+}
+
+function planTrip(originlong, originLat, destLong, destLat) {
+  const buttonElem = document.querySelector('.plan-trip');
+  buttonElem.addEventListener('click' , function() {
+    fetch(`https://api.winnipegtransit.com/v3/trip-planner.json?origin=geo/${originLat},${originlong}&destination=geo/${destLat},${destLong}&usage=long&api-key=${APIkeyWinTransit}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.plans.length > 0) {
+          console.log(data.plans[0].segments);
+          deletePreviousPlan();
+          data.plans[0].segments.forEach(step => displayPlan(step));
+        } else {
+          ulTripElem.innerHTML = 'Unavailable at the moment.'
+        }
+      });  
+  })
+}
+
+function deletePreviousPlan() {
+  ulTripElem.innerHTML = '';
+}
+
+function displayPlan(step) {
+  ulTripElem.insertAdjacentHTML('beforeend', 
+    `<li>
+      <i class="${setIcon(step.type)}" aria-hidden="true"></i>
+      ${setText(step)}
+    </li>`)
+}
+
+function setIcon(type) {
+  let icon;
+
+  switch (type) {
+    case 'ride':
+      icon = 'fas fa-bus';
+      break;
+    case 'transfer':
+      icon = 'fas fa-ticket-alt';
+      break;
+    default:
+      icon = 'fas fa-walking';
+  }
+  
+  return icon;
+}
+
+function setText(step) {
+  let planText;
+
+  switch (step.type) {
+    case 'ride':
+      planText = `${step.type.capitalize()} the ${checkBlue(step.route)} for ${checkPlural(step.times.durations.riding)}.`;
+      break;
+    case 'transfer':
+      planText = `${step.type.capitalize()} from stop #${step.from.stop.key} - ${step.from.stop.name} to stop #${step.to.stop.key} - ${step.to.stop.name}.`;
+      break;
+    default:
+      planText = `${step.type.capitalize()} for ${checkPlural(step.times.durations.walking)} to ${checkLastStep(step.to)}.`;
+  }
+  
+  return planText;
+}
+
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1)
+}
+
+function checkBlue(bus) {
+  if (bus.name !== null && bus.name !== undefined) {
+    return `${bus.name}`;
+  } else {
+    return `${bus.key}`;
+  }
+}
+
+function checkPlural(time) {
+  let timeText;
+
+  if (time === 1) {
+    timeText = `${time} minute`;
+  } else {
+    timeText = `${time} minutes`;
+  }
+  
+  return timeText;  
+} 
+
+function checkLastStep(stepTo) {
+  if (stepTo !== null && stepTo !== undefined) {
+    return (checkProperty(stepTo, 'stop') ? `stop #${stepTo.stop.key} - ${stepTo.stop.name}` : 'your destination');
+  } else {
+    return `your destination`;
+  }
+}
+
+//source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty
+//function that takes two parameters (object and property) and returns boolean (true or false) depends on it does provided object have particular property (in this case, its purpose is to check does the last segment in trip plan have property to.stop)
+function checkProperty(object, property) {
+  return Object.prototype.hasOwnProperty.call(object, property)
+}
