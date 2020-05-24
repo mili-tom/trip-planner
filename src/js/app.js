@@ -156,3 +156,11 @@ function setText(step) {
 String.prototype.capitalize = function() {
   return this.charAt(0).toUpperCase() + this.slice(1)
 }
+
+function checkBlue(bus) {
+  if (bus.name !== null && bus.name !== undefined) {
+    return `${bus.name}`;
+  } else {
+    return `${bus.key}`;
+  }
+}
