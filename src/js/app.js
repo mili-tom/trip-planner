@@ -164,3 +164,15 @@ function checkBlue(bus) {
     return `${bus.key}`;
   }
 }
+
+function checkPlural(time) {
+  let timeText;
+
+  if (time === 1) {
+    timeText = `${time} minute`;
+  } else {
+    timeText = `${time} minutes`;
+  }
+  
+  return timeText;  
+} 
