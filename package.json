@@ -18,6 +18,12 @@
   "homepage": "https://github.com/mili-tom/trip-planner#readme",
   "dependencies": {
     "gulp": "^4.0.2",
-    "gulp-clean-css": "^4.3.0"
+    "gulp-clean-css": "^4.3.0",
+    "gulp-uglify": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "gulp-babel": "^8.0.0"
   }
 }
