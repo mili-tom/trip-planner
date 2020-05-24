@@ -184,3 +184,9 @@ function checkLastStep(stepTo) {
     return `your destination`;
   }
 }
+
+//source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty
+//function that takes two parameters (object and property) and returns boolean (true or false) depends on it does provided object have particular property (in this case, its purpose is to check does the last segment in trip plan have property to.stop)
+function checkProperty(object, property) {
+  return Object.prototype.hasOwnProperty.call(object, property)
+}
