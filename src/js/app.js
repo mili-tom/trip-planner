@@ -1,14 +1,14 @@
 const APIkeyWinTransit = 'eM0x2PJKCyqqY7BOlun';
 const APIkeyMapbox = 'pk.eyJ1IjoibWlsaXRvbSIsImEiOiJja2E2YmtpN2cwNmhzMnlvejA0cm5kamtpIn0.DvZmdFkPPyBWuuW-TgOpTw';
-const bboxWinnipeg = '-97.325875, 49.766204, -96.953987, 49.99275';
+const geoBorderWinnipeg = '-97.325875, 49.766204, -96.953987, 49.99275';
 
 const ulElem = document.querySelectorAll('ul.origins, ul.destinations');
 const formElem = document.querySelectorAll('form');
+const ulTripElem = document.querySelector('.my-trip');
 
 formElem.forEach(element => element.addEventListener('submit', function(event) {
   const input = event.target.querySelector('input');
   const point = event.target.closest('form').className.slice(0,-5);
-  //console.log(point);
 
   if (input.value.length > 0) {
     findLocation(input.value, point);
@@ -18,7 +18,7 @@ formElem.forEach(element => element.addEventListener('submit', function(event) {
 }))
 
 function findLocation(query, point) {
-  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?limit=10&bbox=${bboxWinnipeg}&access_token=${APIkeyMapbox}`)
+  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?limit=10&bbox=${geoBorderWinnipeg}&access_token=${APIkeyMapbox}`)
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -52,10 +52,8 @@ function displayLocations(location, point) {
 
 ulElem.forEach(element => element.addEventListener('click', function(event) {
   const selectedLocation = event.target.closest('li');
-  //console.log(selectedLocation);
   const parentElem = selectedLocation.closest('ul');
-  let originLong, originLat, destLong, destLat;
-  
+    
   if (selectedLocation !== null) {
     const siblingsElem = getAllSiblings(selectedLocation, parentElem);
   
@@ -64,22 +62,8 @@ ulElem.forEach(element => element.addEventListener('click', function(event) {
 
     const selectedOrigLocation = document.querySelector(`.origins > .selected`);  
     const selectedDestLocation = document.querySelector(`.destinations > .selected`);
-    //console.log(selectedOrigLocation)
-    if (selectedOrigLocation !==null && selectedDestLocation !== null) {
-    originLong = selectedOrigLocation.dataset.long;
-    //console.log(originLong);
-    originLat = selectedOrigLocation.dataset.lat;
-    //console.log(originLat);
-    destLong = selectedDestLocation.dataset.long;
-    //console.log(destLong);
-    destLat = selectedDestLocation.dataset.lat;
-    //console.log(destLat);
-    }
-  
-    if (originLong !== undefined && originLat !== undefined && destLong !== undefined && destLat !== undefined) {
-      console.log(originLong, originLat, destLong, destLat);
-      //planTrip(originLong, originLat, destLong, destLat);
-    }
+    
+    getGeoData(selectedOrigLocation, selectedDestLocation);
   }
 }))
   
@@ -90,13 +74,47 @@ function getAllSiblings(element, parent) {
   return children.filter(child => child !== element);
 }
 
+function getGeoData(start, end) {
+  let originLong, originLat, destLong, destLat = '';
+
+  if (start !==null && end !== null) {
+    originLong = start.dataset.long;
+    originLat = start.dataset.lat;
+    destLong = end.dataset.long;
+    destLat = end.dataset.lat;
+  }
+
+  if (originLong !== undefined && originLat !== undefined && destLong !== undefined && destLat !== undefined) {
+    console.log(originLong, originLat, destLong, destLat);
+    planTrip(originLong, originLat, destLong, destLat);
+  }
+}
+
 function planTrip(originlong, originLat, destLong, destLat) {
   const buttonElem = document.querySelector('.plan-trip');
   buttonElem.addEventListener('click' , function() {
     fetch(`https://api.winnipegtransit.com/v3/trip-planner.json?origin=geo/${originLat},${originlong}&destination=geo/${destLat},${destLong}&usage=long&api-key=${APIkeyWinTransit}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data);
+        if (data.plans.length > 0) {
+          console.log(data.plans[0].segments);
+          deletePreviousPlan();
+          data.plans[0].segments.forEach(step => displayPlan(step));
+        } else {
+          ulTripElem.innerHTML = 'Unavailable at the moment.'
+        }
       });  
   })
+}
+
+function deletePreviousPlan() {
+  ulTripElem.innerHTML = '';
+}
+
+function displayPlan(step) {
+  ulTripElem.insertAdjacentHTML('beforeend', 
+    `<li>
+      <i class="${setIcon(step.type)}" aria-hidden="true"></i>
+      ${setText(step)}
+    </li>`)
 }
