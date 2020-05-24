@@ -21,7 +21,6 @@ function findLocation(query, point) {
   fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?limit=10&bbox=${geoBorderWinnipeg}&access_token=${APIkeyMapbox}`)
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       deletePreviousSearch(point);
       data.features.forEach(location => {
         displayLocations(location, point);
@@ -85,7 +84,6 @@ function getGeoData(start, end) {
   }
 
   if (originLong !== undefined && originLat !== undefined && destLong !== undefined && destLat !== undefined) {
-    console.log(originLong, originLat, destLong, destLat);
     planTrip(originLong, originLat, destLong, destLat);
   }
 }
@@ -97,7 +95,6 @@ function planTrip(originlong, originLat, destLong, destLat) {
       .then(response => response.json())
       .then(data => {
         if (data.plans.length > 0) {
-          console.log(data.plans[0].segments);
           deletePreviousPlan();
           data.plans[0].segments.forEach(step => displayPlan(step));
         } else {
