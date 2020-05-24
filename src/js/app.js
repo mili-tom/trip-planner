@@ -176,3 +176,11 @@ function checkPlural(time) {
   
   return timeText;  
 } 
+
+function checkLastStep(stepTo) {
+  if (stepTo !== null && stepTo !== undefined) {
+    return (checkProperty(stepTo, 'stop') ? `stop #${stepTo.stop.key} - ${stepTo.stop.name}` : 'your destination');
+  } else {
+    return `your destination`;
+  }
+}
