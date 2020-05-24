@@ -135,3 +135,20 @@ function setIcon(type) {
   
   return icon;
 }
+
+function setText(step) {
+  let planText;
+
+  switch (step.type) {
+    case 'ride':
+      planText = `${step.type.capitalize()} the ${checkBlue(step.route)} for ${checkPlural(step.times.durations.riding)}.`;
+      break;
+    case 'transfer':
+      planText = `${step.type.capitalize()} from stop #${step.from.stop.key} - ${step.from.stop.name} to stop #${step.to.stop.key} - ${step.to.stop.name}.`;
+      break;
+    default:
+      planText = `${step.type.capitalize()} for ${checkPlural(step.times.durations.walking)} to ${checkLastStep(step.to)}.`;
+  }
+  
+  return planText;
+}
