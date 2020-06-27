@@ -65,8 +65,7 @@ ulElem.forEach(element => element.addEventListener('click', function(event) {
     getGeoData(selectedOrigLocation, selectedDestLocation);
   }
 }))
-  
-//source: https://stackoverflow.com/questions/4378784/how-to-find-all-siblings-of-the-currently-selected-dom-object
+ 
 //function takes two parameters (element and its parent) and based on that makes array of all elements that are children of selected element's parent (in this case all <li> inside of <ul>); then it filters that array and returns array of all sibling elements (just element itself is excluded from array)
 function getAllSiblings(element, parent) {
   const children = [...parent.children];
@@ -182,7 +181,6 @@ function checkLastStep(stepTo) {
   }
 }
 
-//source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty
 //function that takes two parameters (object and property) and returns boolean (true or false) depends on it does provided object have particular property (in this case, its purpose is to check does the last segment in trip plan have property to.stop)
 function checkProperty(object, property) {
   return Object.prototype.hasOwnProperty.call(object, property)
